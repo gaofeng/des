@@ -1,0 +1,140 @@
+<HTML>
+<HEAD>
+<TITLE>CS 69011 Information Processing Laboratory, Spring 2003</TITLE>
+</HEAD>
+<BODY BGCOLOR=#DDDDFF TEXT=#000000 LINK=#8800FF VLINK=#8800FF ALINK=#0088FF>
+<H2 ALIGN=center>
+CS 69011 Information Processing Laboratory, Autumn 2003<BR><BR>
+<FONT COLOR="#FF00FF"><BIG><U>Assignment 2</U>: Implementation of DES</BIG></FONT>
+</H2>
+<P>
+
+<H3 ALIGN="left">Objective</H3>
+This assignment instructs the students:
+<UL>
+<LI>How to implement well-specified algorithms.
+<LI>How to build (static) function libraries from object modules.
+<LI>How to call library fuctions from application programs.
+<LI>How to write Makefiles.
+</UL>
+
+<H3 ALIGN="left">What is DES?</H3>
+<FONT COLOR="#0000FF">Data Encryption Standard</FONT> (DES) is a standard
+encryption algorithm proposed by the US Department of Commerce. DES and
+its several variants are now widely used for asymmetric encryption.
+<P>
+Suppose that Alice wants to send a message <I>M</I> to Bob using a
+communication channel, where a third party (Carol) can intercept others'
+messages. In order to make the message <I>M</I> inaccessible to Carol,
+Alice transforms <I>M</I> to <I>C&nbsp;=&nbsp;E(M,K)</I> and sends the
+resulting ciphertext <I>C</I> to Bob. Bob upon receiving <I>C</I>
+retrieves the plaintext <I>M&nbsp;=&nbsp;D(C,K)</I>. The function
+<I>E</I> is called the <I>encryption function</I> and <I>D</I> the
+<I>decryption function</I>. They use a <I>key</I> <I>K</I> which
+introduces the desired privacy in the scheme. Alice and Bob both know
+<I>K</I> and can encrypt and decrypt, whereas Carol (or Dorothy or Emily)
+without the knowledge of <I>k</I> cannot make out <I>M</I> even if
+she obtains <I>C</I> by intercepting the communication channel.
+<P>
+There are several ways in which the (matching) functions <I>E</I> and
+<I>D</I> can be designed. DES is one popular building block for encryption.
+Alice first breaks up her secret message <I>M</I> into <I>blocks</I> of
+64 bits and encrypts each block using the DES primitive and a secret key
+<I>K</I> known to Alice and Bob only.
+<P>
+A complete specification of DES is available as a FIPS document at the
+site:
+<A HREF="http://www.itl.nist.gov/fipspubs/fip46-2.htm">http://www.itl.nist.gov/fipspubs/fip46-2.htm</A>.
+There are variants of this basic DES scheme, like 2-DES, 3-DES and DESX.
+In order to encrypt multiple blocks, one typically uses a feedback loop
+known as <I>cipher block chaining</I> (CBC). In order to know more about
+the DES variants and the CBC mode of operation, we refer the reader to
+the book by Menezes, van Oorschot and Vanstone:
+<A HREF="http://www.cacr.math.uwaterloo.ca/hac/">Handbook of Applied
+Cryptography</A> (HAC), Chapter&nbsp;7 (Block Ciphers). We will also distribute
+sample pages from books in the class.
+
+<P><H3 ALIGN="left">What to do?</H3>
+<DL COMPACT>
+<DT><FONT COLOR="#FF0000">Part 1</FONT>
+<DD>Implement the encryption and decryption routines for DES, 2-DES,
+3-DES.
+<P><DT><FONT COLOR="#FF0000">Part 2</FONT>
+<DD>Implement the CBC modes of operation of the three DES primiives of Part 1.
+<P><DT><FONT COLOR="#FF0000">Part 3</FONT>
+<DD>Encrypt English paragraphs by DES, send to your friend and let your
+friend decrypt your ciphertext. Note that in this context you are your
+friend's friend.
+<P><DT><FONT COLOR="#FF0000">Part 4</FONT>
+<DD>Implement differential cryptanalysis for DES.
+</DL>
+
+<P><H3 ALIGN="left">How to do?</H3>
+Use the following step-by-step development:
+<UL>
+<P><LI>Write the following pairs of header/source files:
+<PRE>
+DES.h      DES.c       Basic DES encryption/decryption
+2DES.h     2DES.c      2-DES encryption/decryption
+3DES.h     3DES.c      3-DES encryption/decryption
+DESCBC.h   DESCBC.c    CBC mode of operation for (basic) DES
+2DESCBC.h  2DESCBC.c   CBC mode of operation for 2-DES
+3DESCBC.h  3DESCBC.c   CBC mode of operation for 3-DES
+</PRE>
+<P><LI>Write a <TT>Makefile</TT> that compiles the sources to generate
+object modules and subsequently archives the object modules to a
+static library <TT>libDES.a</TT>. In order to generate object files
+from a <TT>main()</TT>-less source use <TT>gcc -c</TT> and for archiving
+use <TT>ar</TT> followed by <TT>ranlib</TT>. Your <TT>Makefile</TT>
+should automatically do all these things. Note that you don't have to
+specify <TT>-c</TT> in a <TT>Makefile</TT>.
+<P><LI>Write the text encrypt/decrypt application using the header files.
+While compiling, link the static library created.
+<P>
+In order to encrypt
+long English paragraphs break the paragraphs in blocks of eight
+characters. Encode each block in 64 bits. You may exploit the ASCII
+encoding of characters for this purpose. Finally use the CBC mode
+for encrypting the sequence of 64 bit encoded blocks. The CBC mode
+of operation requires an IV (initialization vector) that can be
+generated randomly.
+<P>
+Your application
+program should also produce 64-bit blocks of ciphertext, decrypt
+each block under the CBC mode and decode each decrypted block to retrieve
+the English paragraph. The matching IV should be used during decryption.
+<P>
+Assuming that the header files reside in <TT>/home/username/infoLab/include</TT>,
+your application program should have the following <TT>#include</TT> directives:
+<PRE>
+#include "/home/username/infoLab/include/DES.h"
+#include "/home/username/infoLab/include/2DES.h"
+#include "/home/username/infoLab/include/3DES.h"
+#include "/home/username/infoLab/include/DESCBC.h"
+#include "/home/username/infoLab/include/2DESCBC.h"
+#include "/home/username/infoLab/include/3DESCBC.h"
+</PRE>
+Also suppose that your static library (<TT>libDES.a</TT>) resides in the
+directory <TT>/home/username/infoLab/lib</TT>. Linking during compilation
+can be effected by:
+<PRE>
+gcc myApplication.c -L/home/username/infoLab/lib -lDES
+</PRE>
+<TT>#include</TT> and the <TT>-L</TT> option also accept relative path names.
+
+<P><LI>Write the differential cryptanalysis routine.
+</UL>
+
+<H3 ALIGN="left">Downloaded documents</H3>
+<UL>
+<LI><A HREF="tmp/fip46-2.html">FIPS page on DES</A>
+<LI>Chapter 7 of HAC: <A HREF="tmp/HACchap7.ps">PostScript</A>,
+<A HREF="tmp/HACchap7.pdf">PDF</A>.
+<LI><A HREF="tmp/gnuMake.txt">A short tutorial on <TT>make</TT></A>
+</UL>
+
+<P><HR NOSHADE SIZE=2><P>
+[<A HREF="http://10.5.19.35/~mtech03/">Lab home</A>]
+[<A HREF="http://facweb.iitkgp.ernet.in/~adas/">My home</A>]
+</BODY>
+</HTML>
