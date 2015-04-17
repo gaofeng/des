@@ -22,7 +22,7 @@ typedef unsigned char * * KeySchedule;
 extern uChar PC1[];
 extern uChar PC2[];
 extern uChar E[];
-extern uChar S[][][];
+extern uChar S[8][4][16];
 extern uChar P[];
 extern uChar IP[];
 extern uChar IPInv[];
